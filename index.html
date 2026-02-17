@@ -235,7 +235,7 @@
         .fruit-icon {
             width: 100px;
             height: 100px;
-            margin: 0 auto 15px;
+            margin: 0 auto 10px;
             display: block;
             object-fit: contain;
         }
@@ -244,7 +244,7 @@
             width: 100px;
             height: 100px;
             display: block;
-            margin: 0 auto 15px;
+            margin: 0 auto 10px;
             object-fit: contain;
         }
 
@@ -252,14 +252,12 @@
             font-size: 20px;
             font-weight: 600;
             color: white;
-            margin-bottom: 8px;
+            margin-bottom: 0;
             text-transform: lowercase;
         }
 
         .country-name {
-            font-size: 16px;
-            color: rgba(255, 255, 255, 0.9);
-            font-weight: 500;
+            display: none;
         }
 
         /* Loader Container */
@@ -275,13 +273,12 @@
 
         .ellipsis-loader {
             display: inline-flex;
-            gap: 18px;   /* lebih lega */
+            gap: 18px;
             align-items: center;
             justify-content: center;
-            margin-top: 70px; /* biar agak turun dikit */
-            margin-bottom: 17px; /* biar agak turun dikit */
+            margin-top: 70px;
+            margin-bottom: 17px;
         }
-
 
         .ellipsis-loader div {
             width: 16px;
@@ -574,7 +571,7 @@
                     </div>
                     <span>Reset</span>
                 </button>
-                <h1>Choose your fruit</h1>
+                <h1>Pilih salah satu</h1>
             </div>
 
             <!-- Loader -->
@@ -589,26 +586,26 @@
             
             <div class="fruits-grid" id="fruitsGrid">
                 <div class="fruit-card" id="pineapple" onclick="selectFruit('pineapple')">
-                    <img src="assets/pineapple.png" alt="Pineapple" class="fruit-icon">
-                    <div class="fruit-name">pineapple</div>
+                    <img src="assets/quran.png" alt="Quran" class="fruit-icon">
+                    <div class="fruit-name">ayat<br>al-quran</div>
                     <div class="country-name" id="pineapple-country"></div>
                 </div>
                 
                 <div class="fruit-card" id="apple" onclick="selectFruit('apple')">
-                    <img src="assets/apple.png" alt="Apple" class="fruit-icon">
-                    <div class="fruit-name">Apple</div>
+                    <img src="assets/scroll.png" alt="Scroll" class="fruit-icon">
+                    <div class="fruit-name">Hadits<br>nabi</div>
                     <div class="country-name" id="apple-country"></div>
                 </div>
                 
                 <div class="fruit-card" id="watermelon" onclick="selectFruit('watermelon')">
-                    <img src="assets/watermelon.png" alt="Watermelon" class="fruit-icon">
-                    <div class="fruit-name">Watermelon</div>
+                    <img src="assets/doa.png" alt="Doa" class="fruit-icon">
+                    <div class="fruit-name">doa - doa</div>
                     <div class="country-name" id="watermelon-country"></div>
                 </div>
                 
                 <div class="fruit-card" id="orange" onclick="selectFruit('orange')">
-                    <img src="assets/orange.png" alt="Orange" class="fruit-icon">
-                    <div class="fruit-name">orange</div>
+                    <img src="assets/arabic.png" alt="Arabic" class="fruit-icon">
+                    <div class="fruit-name">kosakata<br>bahasa arab</div>
                     <div class="country-name" id="orange-country"></div>
                 </div>
             </div>
@@ -618,7 +615,7 @@
         <div class="detail-page" id="detailPage">
             <button class="back-btn" onclick="goBack()">
                 <img src="assets/arrow.png" alt="Back">
-                <span>Back</span>
+                <span>Kembali</span>
             </button>
             <div class="answer-text" id="answerText"></div>
         </div>
@@ -638,10 +635,10 @@
 
         // Fruit data
         const fruits = {
-            pineapple: { icon: 'assets/pineapple.png', name: 'Pineapple', country: '' },
-            apple: { icon: 'assets/apple.png', name: 'Apple', country: '' },
-            watermelon: { icon: 'assets/watermelon.png', name: 'Watermelon', country: '' },
-            orange: { icon: 'assets/orange.png', name: 'Orange', country: '' }
+            pineapple: { icon: 'assets/quran.png', name: 'quran', country: '' },
+            apple: { icon: 'assets/scroll.png', name: 'scroll', country: '' },
+            watermelon: { icon: 'assets/doa.png', name: 'doa', country: '' },
+            orange: { icon: 'assets/arabic.png', name: 'arabic', country: '' }
         };
 
         // Shuffle array using Fisher-Yates algorithm
@@ -735,13 +732,13 @@
 
         // Go back to main page
         function goBack() {
-            // Hide detail page and show loader
+            // Hide detail page and show main page with loader
             document.getElementById('detailPage').classList.remove('active');
             document.getElementById('mainPage').classList.remove('hidden');
             document.getElementById('loader').classList.add('active');
             document.getElementById('fruitsGrid').classList.add('hidden');
 
-            // Wait for loader animation
+            // Wait for loader animation then reveal cards with pop-up
             setTimeout(() => {
                 // Get current fruit and mark it as selected
                 const currentFruit = sessionStorage.getItem('currentFruit');
@@ -769,9 +766,15 @@
                 // Clear current selection
                 sessionStorage.removeItem('currentFruit');
 
-                // Hide loader and show fruits grid
+                // Hide loader and show fruits grid with pop-up animation
                 document.getElementById('loader').classList.remove('active');
-                document.getElementById('fruitsGrid').classList.remove('hidden');
+                const fruitsGrid = document.getElementById('fruitsGrid');
+                fruitsGrid.classList.remove('hidden');
+                fruitsGrid.classList.add('pop-up');
+
+                setTimeout(() => {
+                    fruitsGrid.classList.remove('pop-up');
+                }, 600);
             }, 1000);
         }
 
