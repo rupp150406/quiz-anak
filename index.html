@@ -731,7 +731,8 @@
             
             fruitKeys.forEach(fruit => {
                 assignedCountries[fruit] = [];
-                const content = contentData[fruit];
+                // Shuffle the content for this category
+                const content = shuffleArray(contentData[fruit]);
                 for (let b = 0; b < content.length; b++) {
                     assignedCountries[fruit][b] = content[b];
                 }
