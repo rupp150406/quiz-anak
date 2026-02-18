@@ -316,6 +316,11 @@
             margin-top: 30px;
         }
 
+        /* When branch grid has 5 children, use 5 columns */
+        .branch-grid:has(.branch-card:nth-child(5)) {
+            grid-template-columns: repeat(5, 1fr);
+        }
+
         .branch-grid.hidden { display: none; }
 
         .branch-grid.pop-up .branch-card {
@@ -588,7 +593,19 @@
 
     </div>
 
+    <!-- Click sound effect -->
+    <audio id="clickSound" preload="auto">
+        <source src="sounds/click.MP3" type="audio/mp3">
+    </audio>
+
     <script>
+        // ── Sound Effect ───────────────────────────────────────────────────────
+        function playClick() {
+            const sound = document.getElementById('clickSound');
+            sound.currentTime = 0;
+            sound.play().catch(err => console.log('Audio play failed:', err));
+        }
+
         // ── State ──────────────────────────────────────────────────────────────
         // Which branch indices have been used, keyed by fruit name
         // e.g. { pineapple: [0, 2], apple: [] }
@@ -599,13 +616,35 @@
         // Track which branch was just selected (before going to detail)
         let currentBranch = null;
 
-        // Country pool — one per branch slot (4 per fruit, 16 total needed)
-        const countries = [
-            'United States', 'China', 'Japan', 'Germany', 'United Kingdom',
-            'France', 'India', 'Italy', 'Brazil', 'Canada',
-            'Russia', 'South Korea', 'Australia', 'Spain', 'Mexico',
-            'Indonesia', 'Netherlands', 'Saudi Arabia', 'Switzerland', 'Turkey'
-        ];
+        // Content data for each category
+        const contentData = {
+            pineapple: [
+                'At tiin',
+                'Al ala',
+                'Al adiyat',
+                'Adh Dhuha'
+            ],
+            apple: [
+                'Hadits senyum adalah sedekah',
+                'Hadits larangan marah',
+                'Hadits larangan minum sambil berdiri',
+                'Hadits niat'
+            ],
+            watermelon: [
+                'Doa masuk kamar mandi',
+                'Doa untuk kedua orang tua',
+                'Doa masuk masjid',
+                'Doa bangun tidur',
+                'Doa naik kendaraan'
+            ],
+            orange: [
+                'Bahasa arabnya Apel',
+                'Bahasa arabnya Jeruk',
+                'Bahasa arabnya sapi',
+                'Bahasa arabnya bulan',
+                'Bahasa arabnya Matahari'
+            ]
+        };
 
         // Fruit metadata
         const fruits = {
@@ -634,12 +673,14 @@
                 { icon: 'assets/durian.png',        label: 'durian' },
                 { icon: 'assets/kiwi.png',          label: 'kiwi' },
                 { icon: 'assets/pear.png',          label: 'pir' },
+                { icon: 'assets/mangosteen.png',   label: 'manggis' },
             ],
             orange: [
                 { icon: 'assets/lychee.png',        label: 'leci' },
                 { icon: 'assets/papaya.png',        label: 'pepaya' },
                 { icon: 'assets/dragonfruit.png', label: 'buah naga' },
                 { icon: 'assets/cherry.png',        label: 'ceri' },
+                { icon: 'assets/pomegranate.png',  label: 'delima' },
             ],
         };
 
@@ -685,15 +726,17 @@
         }
 
         function buildAssignedCountries() {
-            const pool = shuffleArray(countries);
             assignedCountries = {};
             const fruitKeys = Object.keys(fruits);
-            fruitKeys.forEach((fruit, fi) => {
+            
+            fruitKeys.forEach(fruit => {
                 assignedCountries[fruit] = [];
-                for (let b = 0; b < 4; b++) {
-                    assignedCountries[fruit][b] = pool[(fi * 4 + b) % pool.length];
+                const content = contentData[fruit];
+                for (let b = 0; b < content.length; b++) {
+                    assignedCountries[fruit][b] = content[b];
                 }
             });
+            
             localStorage.setItem('assignedCountries', JSON.stringify(assignedCountries));
         }
 
@@ -724,6 +767,7 @@
 
         // ── Select a main fruit card ───────────────────────────────────────────
         function selectFruit(fruitName) {
+            playClick();
             currentFruit = fruitName;
 
             // Show loader on main page
@@ -745,14 +789,39 @@
             document.getElementById('branchTitle').textContent = fruits[fruitName].name;
 
             // Always ensure the grid is visible before rebuilding
-            document.getElementById('branchGrid').classList.remove('hidden');
+            const branchGrid = document.getElementById('branchGrid');
+            branchGrid.classList.remove('hidden');
             hideLoader('branchLoader');
+
+            // Get options for this fruit
+            const options = branchOptions[fruitName];
+            const numOptions = options.length;
+
+            // Remove any existing cards beyond the needed count
+            const existingCards = branchGrid.querySelectorAll('.branch-card');
+            existingCards.forEach((card, idx) => {
+                if (idx >= numOptions) {
+                    card.remove();
+                }
+            });
+
+            // Ensure we have enough cards
+            for (let i = existingCards.length; i < numOptions; i++) {
+                const newCard = document.createElement('div');
+                newCard.className = 'branch-card';
+                newCard.id = `branch-${i}`;
+                newCard.onclick = () => selectBranch(i);
+                newCard.innerHTML = `
+                    <img src="" alt="" class="branch-icon">
+                    <div class="branch-label"></div>
+                `;
+                branchGrid.appendChild(newCard);
+            }
 
             // Restore disabled state for branches of this fruit
             const used = usedBranches[fruitName] || [];
-            const options = branchOptions[fruitName];
 
-            for (let i = 0; i < 4; i++) {
+            for (let i = 0; i < numOptions; i++) {
                 const card    = document.getElementById(`branch-${i}`);
                 const iconImg = card.querySelector('.branch-icon');
                 const label   = card.querySelector('.branch-label');
@@ -802,6 +871,7 @@
             const used = usedBranches[currentFruit] || [];
             if (used.includes(index)) return;
 
+            playClick();
             currentBranch = index;
 
             // Hide branch grid and show loader
@@ -818,7 +888,7 @@
 
                 // Show answer
                 const country = assignedCountries[currentFruit][index];
-                document.getElementById('answerText').textContent = `your answer is ${country}`;
+                document.getElementById('answerText').textContent = country;
 
                 hideBranch();
                 showDetail();
@@ -827,6 +897,7 @@
 
         // ── Back button: detail → main page ───────────────────────────────────
         function goBack() {
+            playClick();
             document.getElementById('detailPage').classList.remove('active');
 
             // Disable the branch card that was just selected
