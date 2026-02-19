@@ -220,7 +220,7 @@
         }
 
         .fruit-name {
-            font-size: 20px;
+            font-size: 30px;
             font-weight: 600;
             color: white;
             margin-bottom: 0;
@@ -279,7 +279,7 @@
         }
 
         .loading-text {
-            font-size: 24px;
+            font-size: 30px;
             color: #10617C;
             font-weight: 600;
         }
@@ -383,7 +383,7 @@
         }
 
         .branch-label {
-            font-size: 20px;
+            font-size: 30px;
             font-weight: 600;
             color: white;
             margin-bottom: 0;
@@ -430,7 +430,7 @@
         }
 
         .answer-text {
-            font-size: 42px;
+            font-size: 72px;
             color: #10617C;
             font-weight: 600;
             margin-top: 60px;
@@ -595,8 +595,13 @@
 
     <!-- Click sound effect -->
     <audio id="clickSound" preload="auto">
-        <source src="sounds/click.MP3" type="audio/mp3">
+    <source src="sounds/click.MP3" type="audio/mp3">
     </audio>
+
+    <audio id="backSound" preload="auto">
+        <source src="sounds/back.mp3" type="audio/mp3">
+    </audio>
+
 
     <script>
         // ── Sound Effect ───────────────────────────────────────────────────────
@@ -605,6 +610,13 @@
             sound.currentTime = 0;
             sound.play().catch(err => console.log('Audio play failed:', err));
         }
+
+        function playBack() {
+            const sound = document.getElementById('backSound');
+            sound.currentTime = 0;
+            sound.play().catch(err => console.log('Audio play failed:', err));
+        }
+
 
         // ── State ──────────────────────────────────────────────────────────────
         // Which branch indices have been used, keyed by fruit name
@@ -620,9 +632,9 @@
         const contentData = {
             pineapple: [
                 'At tiin',
-                'Al ala',
-                'Al adiyat',
-                'Adh Dhuha'
+                "Al a'la",
+                "Al a'diyat",
+                "Adh Dhuha"
             ],
             apple: [
                 'Hadits senyum adalah sedekah',
@@ -898,7 +910,7 @@
 
         // ── Back button: detail → main page ───────────────────────────────────
         function goBack() {
-            playClick();
+            playBack();
             document.getElementById('detailPage').classList.remove('active');
 
             // Disable the branch card that was just selected
